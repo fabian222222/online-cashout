@@ -1,2 +1,1 @@
-*
-This is my Symfony app for cashout application
+# This is my Symfony app for cashout application
