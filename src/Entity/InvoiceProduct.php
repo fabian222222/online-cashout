@@ -7,7 +7,15 @@ use App\Repository\InvoiceProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InvoiceProductRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations:[
+        "get",
+        "post"
+    ], 
+    itemOperations:[
+        "get"
+    ]
+)]
 class InvoiceProduct
 {
     #[ORM\Id]

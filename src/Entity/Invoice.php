@@ -9,7 +9,15 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations:[
+        "get",
+        "post"
+    ],
+    itemOperations:[
+        "get"
+    ]
+)]
 class Invoice
 {
     #[ORM\Id]

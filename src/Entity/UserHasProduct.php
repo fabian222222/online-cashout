@@ -7,7 +7,15 @@ use App\Repository\UserHasProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserHasProductRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations:[
+        "post",
+        "get"
+    ], 
+    itemOperations:[
+        "get"
+    ]
+)]
 class UserHasProduct
 {
     #[ORM\Id]

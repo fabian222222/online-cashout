@@ -3,13 +3,34 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
-#[ApiResource]
+/**
+ * @Vich\Uploadable
+*/
+#[ApiResource(
+    collectionOperations:[
+        "get",
+        "post" => [
+            'input_formats' => [
+                'multipart' => ['multipart/form-data'],
+            ],
+        ],
+    ], 
+    itemOperations:[
+        "put",
+        "get", 
+        "delete"
+    ]
+)]
 class Product
 {
     #[ORM\Id]
@@ -20,10 +41,15 @@ class Product
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private $image_path;
+    /**
+     * @Vich\UploadableField(mapping="media_object", fileNameProperty="filePath")
+     */
+    public ?File $file = null;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(nullable: true)]
+    public ?string $filePath = null;
+
+    #[ORM\Column(type: 'string')]
     private $price;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: UserHasProduct::class)]
@@ -51,24 +77,12 @@ class Product
         return $this;
     }
 
-    public function getImagePath(): ?string
-    {
-        return $this->image_path;
-    }
-
-    public function setImagePath(string $image_path): self
-    {
-        $this->image_path = $image_path;
-
-        return $this;
-    }
-
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): self
+    public function setPrice(string $price): self
     {
         $this->price = $price;
 
