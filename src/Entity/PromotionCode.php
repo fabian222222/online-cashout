@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PromotionCodeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PromotionCodeRepository::class)]
@@ -15,34 +16,44 @@ use Doctrine\ORM\Mapping as ORM;
     ], 
     itemOperations:[
         "get"
-    ]
+    ],
+    denormalizationContext: ['groups' => ['promoCode:write']],
+    normalizationContext: ['groups' => ['promoCode:read']]
 )]
 class PromotionCode
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    #[Groupes(["promoCode:read"])]
     #[ORM\Column(type: 'integer')]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $serial;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $pourcent;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $fixed;
 
     #[ORM\Column(type: 'float')]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $amount;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $description;
 
     #[ORM\OneToMany(mappedBy: 'promotion', targetEntity: UserHasProduct::class)]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $userHasProducts;
 
     #[ORM\OneToMany(mappedBy: 'promotion', targetEntity: Invoice::class)]
+    #[Groupes(["promoCode:read", "promoCode:write"])]
     private $invoices;
 
     public function __construct()

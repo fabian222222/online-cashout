@@ -7,6 +7,8 @@ use App\Repository\InvoiceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
 #[ApiResource(
@@ -16,31 +18,40 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     itemOperations:[
         "get"
-    ]
+    ],
+    denormalizationContext: ['groups' => ['invoice:write']],
+    normalizationContext: ['groups' => ['invoice:read']]
 )]
 class Invoice
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["invoice:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $serial;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'invoices')]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $user;
 
     #[ORM\ManyToOne(targetEntity: PromotionCode::class, inversedBy: 'invoices')]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $promotion;
 
     #[ORM\Column(type: 'float')]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $amount;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: InvoiceProduct::class)]
+    #[Groups(["invoice:read", "invoice:write"])]
     private $invoiceProducts;
 
     public function __construct()

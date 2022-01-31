@@ -29,16 +29,20 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         "put",
         "get", 
         "delete"
-    ]
+    ],
+    denormalizationContext: ['groups' => ['product:write']],
+    normalizationContext: ['groups' => ['product:read']]
 )]
 class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groupes(["product:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groupes(["product:read", "product:write"])]
     private $name;
 
     /**
@@ -47,9 +51,11 @@ class Product
     public ?File $file = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groupes(["product:read", "product:write"])]
     public ?string $filePath = null;
 
     #[ORM\Column(type: 'string')]
+    #[Groupes(["product:read", "product:write"])]
     private $price;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: UserHasProduct::class)]

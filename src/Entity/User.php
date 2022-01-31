@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -19,7 +20,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
         "delete",
         "put",
         "get"
-    ]
+    ],
+    denormalizationContext: ['groups' => ['user:write']],
+    normalizationContext: ['groups' => ['user:read']]
 )]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -27,24 +30,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["user:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Groups(["user:read", "user:write"])]
     private $email;
 
     #[ORM\Column(type: 'json')]
+    #[Groups(["user:read", "user:write"])]
     private $roles = [];
 
     #[ORM\Column(type: 'string')]
+    #[Groups(["user:write"])]
     private $password;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserHasProduct::class)]
+    #[Groups(["user:read", "user:write"])]
     private $userHasProducts;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Invoice::class)]
+    #[Groups(["user:read"])]
     private $invoices;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["user:read", "user:write"])]
     private $username;
 
     public function __construct()
