@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,51 +11,62 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Controller\Connection;
+use App\Controller\GetCurrentUserController;
 
 #[ApiResource(
     collectionOperations:[
         "get",
-        "post"
+        "post",
+        "me" => [
+            "method" => 'GET',
+            "path" => "/users/me",
+            "controller" => GetCurrentUserController::class
+        ]
     ],
     itemOperations:[
         "delete",
         "put",
-        "get"
+        "get" => [
+            "normalization_context" => ['groups' => ['user:get']]
+        ]
     ],
     denormalizationContext: ['groups' => ['user:write']],
-    normalizationContext: ['groups' => ['user:read']]
+    normalizationContext: ['groups' => ['user:read']],
 )]
+#[ApiFilter(SearchFilter::class, properties: ['email' => 'exact'])]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:get"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    #[Groups(["user:read", "user:write"])]
+    #[Groups(["user:read", "user:write", "user:get"])]
     private $email;
 
     #[ORM\Column(type: 'json')]
-    #[Groups(["user:read", "user:write"])]
+    #[Groups(["user:read", "user:write", "user:get"])]
     private $roles = [];
 
     #[ORM\Column(type: 'string')]
-    #[Groups(["user:write"])]
+    #[Groups(["user:write", "user:get"])]
     private $password;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserHasProduct::class)]
-    #[Groups(["user:read", "user:write"])]
+    #[Groups(["user:read", "user:write", "user:get"])]
     private $userHasProducts;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Invoice::class)]
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:get"])]
     private $invoices;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["user:read", "user:write"])]
+    #[Groups(["user:read", "user:write", "user:get"])]
     private $username;
 
     public function __construct()

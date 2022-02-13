@@ -23,7 +23,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             'input_formats' => [
                 'multipart' => ['multipart/form-data'],
             ],
-        ],
+        ]
     ], 
     itemOperations:[
         "put",
@@ -38,32 +38,39 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groupes(["product:read"])]
+    #[Groups(["product:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groupes(["product:read", "product:write"])]
+    #[Groups(["product:read", "product:write"])]
     private $name;
 
     /**
      * @Vich\UploadableField(mapping="media_object", fileNameProperty="filePath")
      */
+    #[Groups(["product:write"])]
     public ?File $file = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groupes(["product:read", "product:write"])]
+    #[Groups(["product:read", "product:write"])]
     public ?string $filePath = null;
 
     #[ORM\Column(type: 'string')]
-    #[Groupes(["product:read", "product:write"])]
+    #[Groups(["product:read", "product:write"])]
     private $price;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: UserHasProduct::class)]
+    #[Groups(["product:read", "product:write"])]
     private $userHasProducts;
+
+    #[ORM\OneToMany(mappedBy: 'Product', targetEntity: ProductHasCategorie::class)]
+    #[Groups(["product:read", "product:write"])]
+    private $productHasCategories;
 
     public function __construct()
     {
         $this->userHasProducts = new ArrayCollection();
+        $this->productHasCategories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,6 +126,36 @@ class Product
             // set the owning side to null (unless already changed)
             if ($userHasProduct->getProduct() === $this) {
                 $userHasProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProductHasCategorie[]
+     */
+    public function getProductHasCategories(): Collection
+    {
+        return $this->productHasCategories;
+    }
+
+    public function addProductHasCategory(ProductHasCategorie $productHasCategory): self
+    {
+        if (!$this->productHasCategories->contains($productHasCategory)) {
+            $this->productHasCategories[] = $productHasCategory;
+            $productHasCategory->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductHasCategory(ProductHasCategorie $productHasCategory): self
+    {
+        if ($this->productHasCategories->removeElement($productHasCategory)) {
+            // set the owning side to null (unless already changed)
+            if ($productHasCategory->getProduct() === $this) {
+                $productHasCategory->setProduct(null);
             }
         }
 

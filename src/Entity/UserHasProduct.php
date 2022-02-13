@@ -6,6 +6,9 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserHasProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
 
 #[ORM\Entity(repositoryClass: UserHasProductRepository::class)]
 #[ApiResource(
@@ -19,6 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['userProduct:write']],
     normalizationContext: ['groups' => ['userProduct:read']]
 )]
+#[ApiFilter(SearchFilter::class, properties: ['checked' => 'exact', "user" => "exact"])]
 class UserHasProduct
 {
     #[ORM\Id]
@@ -42,6 +46,10 @@ class UserHasProduct
     #[ORM\ManyToOne(targetEntity: PromotionCode::class, inversedBy: 'userHasProducts')]
     #[Groups(["userProduct:read", "userProduct:write"])]
     private $promotion;
+
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(["userProduct:read", "userProduct:write"])]
+    private $checked;
 
     public function getId(): ?int
     {
@@ -92,6 +100,18 @@ class UserHasProduct
     public function setPromotion(?PromotionCode $promotion): self
     {
         $this->promotion = $promotion;
+
+        return $this;
+    }
+
+    public function getChecked(): ?bool
+    {
+        return $this->checked;
+    }
+
+    public function setChecked(bool $checked): self
+    {
+        $this->checked = $checked;
 
         return $this;
     }
